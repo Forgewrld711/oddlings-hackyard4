@@ -1,0 +1,8 @@
+node_modules/
+.openai/*
+!.openai/hosting.json
+*.zip
+*-preview.png
+*-proof.png
+.env
+.env.*

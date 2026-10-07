@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {fresh,restore,visit,start,confirm,todayCount,owns} from '../dist/engine.mjs';
+test('corrupt storage has a safe fresh fallback',()=>{assert.deepEqual(restore('{bad'),fresh());assert.equal(restore('{"version":1,"stone":-1}').stone,6);});
+test('hatching is independent of chores',()=>{assert.equal(start(fresh(),'landing','a').active,null);});
+test('one confirmation earns one furnishing, cannot duplicate',()=>{let s=start({...fresh(),stage:2},'landing','a',true);s=confirm(s,'2026-10-05');assert.equal(s.completed.length,1);assert.equal(s.completed[0].small,true);assert.equal(confirm(s).completed.length,1);assert.ok(owns(s,'landing'));});
+test('skipping does not manufacture progress',()=>{const s=start({...fresh(),stage:2},'rescue','x');assert.equal(confirm({...s,active:null}).completed.length,0);});
+test('three distinct IDs unlock the local-day counter',()=>{let s={...fresh(),stage:2};for(let i=0;i<3;i++)s=confirm(start(s,'rescue',String(i)),'2026-10-05');assert.equal(todayCount(s,'2026-10-05'),3);assert.equal(todayCount(s,'2026-10-06'),0);});
+test('visits are distinct dates, not a consecutive streak',()=>{let s=visit(fresh(),new Date(2026,9,5,12));s=visit(s,new Date(2026,9,5,15));s=visit(s,new Date(2026,9,10,12));assert.equal(s.visits.length,2);assert.equal(s.garden,true);});
+test('clock rollback neither duplicates nor revokes visits',()=>{let s=visit(fresh(),new Date(2026,9,5,12));s=visit(s,new Date(2026,9,4,12));assert.deepEqual(s.visits,['2026-10-05']);});
+test('round-trip preserves pet, active quest and keepsakes',()=>{let s=start({...visit(fresh()),stage:2,name:'Flicker',gifts:['2026-10-05']},'prepare','a');assert.deepEqual(restore(JSON.stringify(s)),s);});
