@@ -16,10 +16,10 @@ Miranda Price is the human builder, working with Morrow, an OpenAI Codex assista
 
 ## Required before submit
 
-- Public repository URL: pending verification.
-- Public playable URL: pending deployment.
+- Public repository URL: https://github.com/Forgewrld711/oddlings-hackyard4
+- Public playable URL: https://forgewrld711.github.io/oddlings-hackyard4/
 - Miranda's human-sided demo video URL: pending.
-- Screenshot of actual playable UI: pending final capture.
+- Screenshot of actual playable UI: `playable-demo-proof.png` (explicitly simulated demo room).
 - Confirm eligibility of derivative cover art with the event's asset rules.
 - Submit and verify confirmation before claiming the entry shipped.
 

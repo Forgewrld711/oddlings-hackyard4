@@ -1,5 +1,7 @@
 # Oddlings
 
+[Play Oddlings](https://forgewrld711.github.io/oddlings-hackyard4/) · [Submission draft](SUBMISSION.md) · [Release checks](QA.md)
+
 ![Updated Oddlings cover illustration](dist/oddling-cover-v2.png)
 
 Cover selected by Miranda, regenerated October 6, 2026 with the built-in image generator using her October 1 concept image as an edit reference. The revised artwork depicts the current mystery pull, hatch, chore, furnishing, gift and postcard features; the old reminder, collection and subscription panels were removed. This is promotional illustration, not a product screenshot or the playable creature sprites. The pre-kickoff original is preserved as `dist/oddling-cover.png`. A regenerated derivative does not automatically resolve event eligibility: disclose the earlier reference and confirm the event's asset rules before submission.
@@ -27,4 +29,4 @@ With Node 22 or newer, run `npm start` and open `http://127.0.0.1:43125/`. Or se
 
 Kickoff email verified October 5: Speedrun cutoff October 7 at 2 p.m. EDT; final deadline October 9 at 2 p.m. EDT. Target Wednesday noon. Submission needs an open-source repo, demo video, writeup, and screenshot. Private preview hosting is not the Hackyard submission.
 
-Remaining: final art, human-sided actual chore demo, public source repo and submission receipt.
+Public source and playable hosting are live. Remaining: human-sided actual chore demo, cover-reference eligibility check, and final submission receipt. Detailed creature portraits are a future visual upgrade; the current playable creatures are CSS illustrations.
