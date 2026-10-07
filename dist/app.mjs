@@ -1,4 +1,5 @@
 import {stones,quests,dayKey,fresh,restore,visit,start,confirm,todayCount,owns,randomStone,postcard} from './engine.mjs';
+import {mountArcade} from './arcade.mjs';
 const $=id=>document.getElementById(id), key='oddlings:v1';
 let storage=true, state; try{state=visit(restore(localStorage.getItem(key)));}catch{state=visit(fresh());storage=false;}
 let demo=false, realState=null, small=false, check=false;
@@ -118,5 +119,6 @@ $('party').onclick=()=>{$('balloons').replaceChildren();confetti();};
 $('demo').onclick=()=>{realState=state;demo=true;check=false;state=visit(fresh());$('room').classList.remove('party');$('pull-result').textContent='Ten stones. Equal chances. Free pulls. You still decide when to hatch.';render();announce('Separate demo room. Real progress is untouched.');};
 $('exit-demo').onclick=()=>{demo=false;check=false;state=realState;realState=null;$('room').classList.remove('party');$('particles').replaceChildren();render();announce('Back in your real room.');};
 save();render();
+mountArcade(()=>({name:state.name||stones[state.stone][1],color:stones[state.stone][2],still:state.motion}));
 // Refresh the local-day visit only while the page is visibly in use.
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)update(visit(state));});

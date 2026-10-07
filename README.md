@@ -16,6 +16,8 @@ With Node 22 or newer, run `npm start` and open `http://127.0.0.1:43125/`. Or se
 
 ## Boundaries
 
+- Pocket Arcade: optional Pocket Hops (keyboard/touch jumping, pause and fresh wander) and untimed Odd Pairs. For passing time, waiting, or fun. No fake loading, purchases, tokens, room rewards or lost progress. Arcade boards last only for the open session; still scenes offers Odd Pairs instead of running motion.
+
 - Ten variants share one engine. Authored dialogue, not live AI or actual feelings.
 - Browser persistence under `oddlings:v1`; not encrypted or cloud-synced. No sensitive data needed.
 - Chore confirmation is self-reported. Demo room is separate and never saved over real progress.
