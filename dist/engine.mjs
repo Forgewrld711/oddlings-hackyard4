@@ -57,6 +57,8 @@ export function confirm(s,day=dayKey()) {
 }
 export const todayCount=(s,day=dayKey())=>new Set(s.completed.filter(v=>v.day===day).map(v=>v.id)).size;
 export const owns=(s,id)=>s.completed.some(v=>v.quest===id);
+export const completionLabel=(count,demo=false)=>`${count} ${demo?'simulated completion':'self-reported chore'}${count===1?'':'s'}`;
+export const companionLine=(s,reply='')=>s.quiet?'Happy to sit here.':reply||stones[s.stone][3];
 // Only this explicit projection reaches a share card. Never export the full save.
 export function postcard(s,includeName=false) {
  const stone=stones[s.stone]||stones[6];

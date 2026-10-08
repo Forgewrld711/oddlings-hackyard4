@@ -1,7 +1,7 @@
 import http from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-const files=new Set(['index.html','style.css','app.mjs','engine.mjs','arcade.mjs','arcade-engine.mjs','arcade.css','oddling-cover-v2.png']);
+const files=new Set(['index.html','style.css','app.mjs','engine.mjs','keepsakes.mjs','arcade.mjs','arcade-engine.mjs','arcade.css','oddling-cover-v2.png']);
 const types={html:'text/html; charset=utf-8',css:'text/css; charset=utf-8',mjs:'text/javascript; charset=utf-8',png:'image/png'};
 const root=new URL('./dist/',import.meta.url);
 const port=Number(process.env.PORT??43125);

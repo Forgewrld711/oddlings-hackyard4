@@ -1,8 +1,9 @@
-import {stones,quests,dayKey,fresh,restore,visit,start,confirm,todayCount,owns,randomStone,postcard} from './engine.mjs';
+import {stones,quests,dayKey,fresh,restore,visit,start,confirm,todayCount,owns,randomStone,postcard,completionLabel,companionLine} from './engine.mjs';
+import {keepsakeSvg,drawKeepsake} from './keepsakes.mjs';
 import {mountArcade} from './arcade.mjs';
 const $=id=>document.getElementById(id), key='oddlings:v1';
 let storage=true, state; try{state=visit(restore(localStorage.getItem(key)));}catch{state=visit(fresh());storage=false;}
-let demo=false, realState=null, small=false, check=false;
+let demo=false, realState=null, small=false, check=false, petReply='',realReply='';
 function save(){if(!demo&&storage){try{localStorage.setItem(key,JSON.stringify(state));}catch{storage=false;}}}
 function announce(text){$('status').textContent=text;}
 function update(next,text){state=next;save();render();if(text)announce(text);}
@@ -18,12 +19,12 @@ function render(){
  $('stone-description').textContent=`${state.stone+1} / ${stone}`;
  $('specimens').innerHTML=stones.map((s,i)=>`<button style="--swatch:${s[2]}" aria-label="Choose specimen ${i+1}: ${escape(s[0])}" aria-pressed="${state.stone===i}" data-stone="${i}">${i+1}</button>`).join('');
  $('hatch-line').textContent=`“I am ${name}. ${line}”`;
- $('pet-name').textContent=petName;$('pet-line').textContent=state.quiet?'Happy to sit here.':line;
+ $('pet-name').textContent=petName;$('pet-line').textContent=companionLine(state,petReply);
  if(document.activeElement!==$('nickname'))$('nickname').value=petName;
  $('board-name').textContent=state.stage===2?petName:'Future roommate';
  $('badges').textContent=state.visits.length>=7&&state.pinned?'✳ AT HOME':state.gifts.length?'✧ YAY':'';
  $('balloons').innerHTML=Array.from({length:Math.min(state.visits.length,7)},()=>'<span class="balloon"></span>').join('');
- $('furniture').innerHTML=quests.filter(q=>owns(state,q.id)).map(q=>`<span title="${q.reward}" aria-label="${q.reward}">${q.icon}</span>`).join('');
+ $('furniture').innerHTML=quests.filter(q=>owns(state,q.id)).map(q=>`<span role="img" title="${q.reward}" aria-label="${q.reward}">${keepsakeSvg(q.id)}</span>`).join('');
  $('garden').hidden=!state.garden;
  $('pet-play').hidden=state.stage!==2;
  $('quiet').checked=state.quiet;$('motion').checked=state.motion;
@@ -38,7 +39,7 @@ function render(){
 function renderQuest(){
  const area=$('quest-area');
  if(!state.active){
-  area.innerHTML=`<p class="eyebrow">${demo?'SIMULATED DEMO CHOICES':'ONE SMALL REAL-WORLD THING'}</p><h3>A room begins with a little room.</h3><p>No countdown. Choose what fits, or just hang out.</p>${quests.map(q=>`<button class="quest-choice" data-quest="${q.id}">${q.title}<span>${q.icon}</span></button>`).join('')}<p>${state.completed.length?`${state.completed.length} ${demo?'simulated completions':'self-reported chores'}. Your furnishings stay.`:'Your pet is here whether you do a chore or not.'}</p>`;
+  area.innerHTML=`<p class="eyebrow">${demo?'SIMULATED DEMO CHOICES':'ONE SMALL REAL-WORLD THING'}</p><h3>A room begins with a little room.</h3><p>No countdown. Choose what fits, or just hang out.</p>${quests.map(q=>`<button class="quest-choice" data-quest="${q.id}">${q.title}<span>${q.icon}</span></button>`).join('')}<p>${state.completed.length?`${completionLabel(state.completed.length,demo)}. Your furnishings stay.`:'Your pet is here whether you do a chore or not.'}</p>`;
  } else {
   const q=quests.find(q=>q.id===state.active.quest);
   area.innerHTML=`<p class="eyebrow">${demo?'SIMULATED DEMO TASK':'YOUR REAL-WORLD QUEST'}</p><h3>${q.title}</h3><p>${state.active.small?q.small:q.text}</p>${q.id==='landing'?`<label class="small-choice"><input id="small-task" type="checkbox" ${state.active.small?'checked':''}> Make it one object instead</label>`:''}<p>Room keepsake: ${q.reward.toLowerCase()}.</p><label class="confirmation"><input id="confirm-check" type="checkbox" ${check?'checked':''}>${demo?'Simulate this completion in the demo only.':'I actually did this in my world. This is my own report.'}</label><button class="primary" id="confirm" ${check?'':'disabled'}>${demo?'Simulate furnishing':'Done — make a little home'} ↗</button><button class="text-button" id="skip">Not now — put this task away</button>`;
@@ -57,11 +58,11 @@ $('random').onclick=()=>{
 };
 $('hatch').onclick=()=>{update({...state,stage:1},'The stone cracked. Your roommate introduced itself.');$('finish-hatch').focus();};
 $('finish-hatch').onclick=()=>{update({...state,stage:2,name:stones[state.stone][1]},'Your Oddling is home. Choose a task or just play.');$('nickname').focus();};
-$('rename-form').onsubmit=e=>{e.preventDefault();update({...state,name:$('nickname').value.trim().slice(0,32)||stones[state.stone][1]},'Name on the door saved.');};
+$('rename-form').onsubmit=e=>{e.preventDefault();const name=$('nickname').value.trim().slice(0,32)||stones[state.stone][1];petReply=`${name}. Yes, that is me.`;update({...state,name},'Name on the door saved.');};
 $('quest-area').addEventListener('click',e=>{
  const b=e.target.closest('[data-quest]');if(b){check=false;small=false;update(start(state,b.dataset.quest,crypto.randomUUID()));$('confirm-check').focus();}
  if(e.target.id==='skip'){check=false;update({...state,active:null},'Task put away. Nothing lost.');$('quest-area').querySelector('[data-quest]').focus();}
- if(e.target.id==='confirm'&&check&&state.active){const q=quests.find(q=>q.id===state.active.quest);check=false;update(confirm(state),`${q.reward} added. Completion ${demo?'simulated':'self-reported'}.`);$('pet-line').textContent='Excellent. The furniture is load-bearing.';$('quest-area').querySelector('[data-quest]').focus();}
+ if(e.target.id==='confirm'&&check&&state.active){const q=quests.find(q=>q.id===state.active.quest);check=false;petReply='Excellent. The furniture is load-bearing.';update(confirm(state),`${q.reward} added. Completion ${demo?'simulated':'self-reported'}.`);$('quest-area').querySelector('[data-quest]').focus();}
 });
 $('quest-area').addEventListener('change',e=>{
  if(e.target.id==='confirm-check'){check=e.target.checked;$('confirm').disabled=!check;}
@@ -102,9 +103,9 @@ function drawPostcard(){
  box(460,615,74,40,20,p.color);box(650,615,74,40,20,p.color);
  box(150,565,60,85,8,'#c98b68');c.strokeStyle='#708856';c.lineWidth=13;c.beginPath();c.moveTo(180,566);c.lineTo(180,445);c.stroke();
  for(const [x,y,r] of [[153,495,-.6],[208,465,.6],[155,451,-.6]]){c.fillStyle='#819565';c.beginPath();c.ellipse(x,y,35,14,r,0,Math.PI*2);c.fill();}
- if(p.furnishings.includes('Bottle-cap stool')){box(800,620,90,20,9,'#ba9479');box(815,639,14,55,3,'#92775e');box(862,639,14,55,3,'#92775e');}
- if(p.furnishings.includes('Tiny collection shelf')){box(943,550,130,15,3,'#92775e');for(let i=0;i<5;i++)box(954+i*20,502,15,48,2,['#879f7f','#b79679','#a395b9'][i%3]);}
- if(p.furnishings.includes('Very important basket'))box(950,635,95,55,16,'#ba9d6f');
+ if(p.furnishings.includes('Bottle-cap stool'))drawKeepsake(c,'landing',800,620);
+ if(p.furnishings.includes('Tiny collection shelf'))drawKeepsake(c,'rescue',943,502);
+ if(p.furnishings.includes('Very important basket'))drawKeepsake(c,'prepare',950,635);
  if(p.garden)text('❧   ❧',290,655,42,'#708856');
  text('✳ oddlings',65,82,42);text('FIELD CLUB / A TINY ROOMMATE',770,78,19);
  text('Thought it was just a rock. It had other plans.',65,835,26);text('#oddling',980,835,27);
@@ -116,8 +117,8 @@ $('close-share').onclick=()=>{$('share-dialog').close();$('share').focus();};
 $('download-card').onclick=()=>{$('share-canvas').toBlob(blob=>{if(!blob){$('share-feedback').textContent='Could not create PNG. Please try again.';return;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='oddling-postcard.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);$('share-feedback').textContent='PNG download requested. Nothing was uploaded.';},'image/png');};
 $('copy-caption').onclick=async()=>{try{await navigator.clipboard.writeText($('share-caption').textContent);$('share-feedback').textContent='Caption copied. Share it wherever you choose.';}catch{$('share-feedback').textContent='Clipboard unavailable. Select the caption above and copy it manually.';}};
 $('party').onclick=()=>{$('balloons').replaceChildren();confetti();};
-$('demo').onclick=()=>{realState=state;demo=true;check=false;state=visit(fresh());$('room').classList.remove('party');$('pull-result').textContent='Ten stones. Equal chances. Free pulls. You still decide when to hatch.';render();announce('Separate demo room. Real progress is untouched.');};
-$('exit-demo').onclick=()=>{demo=false;check=false;state=realState;realState=null;$('room').classList.remove('party');$('particles').replaceChildren();render();announce('Back in your real room.');};
+$('demo').onclick=()=>{realState=state;realReply=petReply;petReply='';demo=true;check=false;state=visit(fresh());$('room').classList.remove('party');$('pull-result').textContent='Ten stones. Equal chances. Free pulls. You still decide when to hatch.';render();announce('Separate demo room. Real progress is untouched.');};
+$('exit-demo').onclick=()=>{demo=false;check=false;state=realState;realState=null;petReply=realReply;realReply='';$('room').classList.remove('party');$('particles').replaceChildren();render();announce('Back in your real room.');};
 save();render();
 mountArcade(()=>({name:state.name||stones[state.stone][1],color:stones[state.stone][2],still:state.motion}));
 // Refresh the local-day visit only while the page is visibly in use.
